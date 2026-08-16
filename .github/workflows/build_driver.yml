@@ -12,11 +12,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Setup WDK (Windows Driver Kit)
+      run: |
+        choco install wdk10 -y
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Driver
-      run: msbuild /p:Configuration=Release /p:Platform=x64
+    - name: Build Driver Solution
+      run: |
+        msbuild /p:Configuration=Release /p:Platform=x64 /p:TargetPlatformVersion=10.0.22621.0
 
     - name: Upload Driver Artifact
       uses: actions/upload-artifact@v4
