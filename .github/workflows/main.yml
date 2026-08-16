@@ -12,16 +12,20 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install WDK via PowerShell
+      run: |
+        choco install wdk10 -y
+
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Driver Only
+    - name: Build Driver (Disable Sign & Inf2Cat)
       run: |
         $proj = Get-ChildItem -Recurse -Filter "*.vcxproj" | Where-Object { $_.FullName -like "*Kernel*" } | Select-Object -First 1
         if ($proj) {
-            msbuild $proj.FullName /p:Configuration=Release /p:Platform=x64
+            msbuild $proj.FullName /p:Configuration=Release /p:Platform=x64 /p:SignMode=Off /p:EnableInf2Cat=false
         } else {
-            msbuild /p:Configuration=Release /p:Platform=x64
+            msbuild /p:Configuration=Release /p:Platform=x64 /p:SignMode=Off /p:EnableInf2Cat=false
         }
 
     - name: Upload Driver Artifact
