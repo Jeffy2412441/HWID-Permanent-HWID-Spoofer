@@ -12,16 +12,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Setup WDK (Windows Driver Kit)
-      run: |
-        choco install wdk10 -y
-
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Driver Solution
+    - name: Build Driver Only
       run: |
-        msbuild /p:Configuration=Release /p:Platform=x64 /p:TargetPlatformVersion=10.0.22621.0
+        $proj = Get-ChildItem -Recurse -Filter "*.vcxproj" | Where-Object { $_.FullName -like "*Kernel*" } | Select-Object -First 1
+        if ($proj) {
+            msbuild $proj.FullName /p:Configuration=Release /p:Platform=x64
+        } else {
+            msbuild /p:Configuration=Release /p:Platform=x64
+        }
 
     - name: Upload Driver Artifact
       uses: actions/upload-artifact@v4
@@ -29,4 +30,3 @@ jobs:
         name: spoofer-driver
         path: |
           **/*.sys
-          **/*.exe
