@@ -12,14 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Install WDK via PowerShell
-      run: |
-        choco install wdk10 -y
-
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Driver (Disable Sign & Inf2Cat)
+    - name: Setup WDK Environment
+      uses: voloniting/setup-wdk@v1
+
+    - name: Build Driver
       run: |
         $proj = Get-ChildItem -Recurse -Filter "*.vcxproj" | Where-Object { $_.FullName -like "*Kernel*" } | Select-Object -First 1
         if ($proj) {
