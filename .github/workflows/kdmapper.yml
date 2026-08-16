@@ -1,0 +1,26 @@
+name: Build KDMapper
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build KDMapper
+      run: msbuild kdmapper.sln /p:Configuration=Release /p:Platform=x64
+
+    - name: Upload KDMapper Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kdmapper-exe
+        path: |
+          **/*.exe
