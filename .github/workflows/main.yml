@@ -15,17 +15,14 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Setup WDK Environment
-      uses: voloniting/setup-wdk@v1
-
-    - name: Build Driver
+    - name: Build Kernel Driver Project
       run: |
         $proj = Get-ChildItem -Recurse -Filter "*.vcxproj" | Where-Object { $_.FullName -like "*Kernel*" } | Select-Object -First 1
-        if ($proj) {
-            msbuild $proj.FullName /p:Configuration=Release /p:Platform=x64 /p:SignMode=Off /p:EnableInf2Cat=false
-        } else {
-            msbuild /p:Configuration=Release /p:Platform=x64 /p:SignMode=Off /p:EnableInf2Cat=false
+        if (-not $proj) {
+            $proj = Get-ChildItem -Recurse -Filter "*.vcxproj" | Select-Object -First 1
         }
+        Write-Host "Building project: $($proj.FullName)"
+        msbuild $proj.FullName /p:Configuration=Release /p:Platform=x64 /p:SignMode=Off /p:EnableInf2Cat=false /p:TargetPlatformVersion=10.0.22621.0
 
     - name: Upload Driver Artifact
       uses: actions/upload-artifact@v4
